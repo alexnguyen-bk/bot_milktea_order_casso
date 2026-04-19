@@ -1,0 +1,28 @@
+category,item_id,name,description,price_m,price_l,available
+Trà Sữa,TS01,Trà Sữa Trân Châu Đen,Trà sữa thơm béo với trân châu đen dai mềm truyền thống,35000,45000,TRUE
+Trà Sữa,TS02,Trà Sữa Trân Châu Trắng,Trà sữa mịn với trân châu trắng ngọt thanh,35000,45000,TRUE
+Trà Sữa,TS03,Trà Sữa Truyền Thống,Trà sữa nguyên chất hương vị cổ điển đậm đà,30000,40000,TRUE
+Trà Sữa,TS04,Trà Sữa Khoai Môn,Trà sữa vị khoai môn béo ngậy ngọt dịu,38000,48000,TRUE
+Trà Sữa,TS05,Trà Sữa Bạc Hà,Trà sữa thơm mát bạc hà sảng khoái,35000,45000,TRUE
+Trà Trái Cây,TTG01,Trà Dâu Tây,Trà tươi vị dâu tây ngọt chua hấp dẫn,32000,42000,TRUE
+Trà Trái Cây,TTG02,Trà Mâm Xôi,Trà mâm xôi tươi màu đỏ quyến rũ,32000,42000,TRUE
+Trà Trái Cây,TTG03,Trà Chanh Leo,Trà chanh leo chua ngọt đặc trưng nhiệt đới,30000,40000,TRUE
+Trà Trái Cây,TTG04,Trà Vải Thiều,Trà vải thiều ngọt hương thơm thanh mát,33000,43000,TRUE
+Trà Trái Cây,TTG05,Trà Xoài,Trà xoài tươi thơm vị ngọt đặc trưng,32000,42000,TRUE
+Cà Phê,CF01,Cà Phê Đen,Cà phê đen đậm đà nguyên chất rang xay thủ công,25000,30000,TRUE
+Cà Phê,CF02,Cà Phê Sữa,Cà phê sữa béo ngậy hài hòa vị đắng và ngọt,28000,33000,TRUE
+Cà Phê,CF03,Cà Phê Caramel,Cà phê với lớp caramel thơm lừng hấp dẫn,30000,35000,TRUE
+Cà Phê,CF04,Cà Phê Mocha,Cà phê với chocolate mượt mà sang trọng,32000,37000,TRUE
+Cà Phê,CF05,Cà Phê Macchiato,Cà phê espresso với lớp kem sữa mịn bên trên,27000,32000,TRUE
+Đá Xay,DX01,Đá Xay Dâu Tây,Đá xay mịn vị dâu tây ngọt chua mát lạnh,35000,45000,TRUE
+Đá Xay,DX02,Đá Xay Dừa,Đá xay vị dừa ngọt dịu béo ngậy nhiệt đới,35000,45000,TRUE
+Đá Xay,DX03,Đá Xay Matcha,Đá xay matcha tươi nguyên chất đậm vị trà xanh,38000,48000,TRUE
+Đá Xay,DX04,Đá Xay Sôcôla,Đá xay sôcôla ngọt đắng quyến rũ,36000,46000,TRUE
+Topping,TOP01,Trân Châu Đen,Trân châu đen dai mềm vị mật ong truyền thống,5000,5000,TRUE
+Topping,TOP02,Trân Châu Trắng,Trân châu trắng mềm ngọt thanh,5000,5000,TRUE
+Topping,TOP03,Thạch Cà Chua,Thạch cà chua mướt mát vị nhẹ nhàng,4000,4000,TRUE
+Topping,TOP04,Thạch Xanh,Thạch xanh mát lạnh hương trà tươi,4000,4000,TRUE
+Topping,TOP05,Nước Cốt Dừa,Nước cốt dừa béo mịn tăng độ thơm ngậy,6000,6000,TRUE
+Topping,TOP06,Kem Tươi,Kem tươi mịn ngọt dịu phủ lên trên,8000,8000,TRUE
+Topping,TOP07,Gelée Khoai Môn,Gelée khoai môn vị dẻo thơm đặc sắc,5000,5000,TRUE
+Topping,TOP08,Bột Trà Xanh,Bột trà xanh thơm nguyên chất rắc lên trên,3000,3000,TRUE
