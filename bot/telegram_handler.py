@@ -256,38 +256,84 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ──────────────────────────────────────────────────────
 
 async def cmd_paid(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin: Xác nhận đã nhận tiền → thông báo khách đang pha chế."""
     if not context.args:
-        await update.message.reply_text("Cú pháp: /paid [mã đơn]")
+        await update.message.reply_text("Cú pháp: /paid [mã đơn]\nVí dụ: /paid 04201234")
         return
     order_number = context.args[0].upper()
     order = await get_db().mark_order_paid(order_number)
     if not order:
         await update.message.reply_text(f"❌ Không tìm thấy đơn #{order_number}")
         return
-    await update.message.reply_text(f"✅ Đã xác nhận thanh toán đơn #{order_number}!")
+
+    di = order.get("delivery_info", {})
+    cart = order.get("cart", {})
+    items = cart.get("items", []) if isinstance(cart, dict) else []
+    items_text = "\n".join(
+        f"  • {i['item_name']} size {i['size']} x{i['quantity']}" for i in items
+    )
+
+    # Thông báo cho admin
+    await update.message.reply_text(
+        f"✅ *Đã xác nhận thanh toán đơn #{order_number}*\n\n"
+        f"👤 {di.get('name','')} — {di.get('phone','')}\n"
+        f"📍 {di.get('address','')}\n\n"
+        f"🧾 Đơn hàng:\n{items_text}\n\n"
+        f"💰 Tổng: {format_price(order['total_amount'])}\n\n"
+        f"➡️ Dùng /done {order_number} khi pha chế xong!",
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
+    # Thông báo cho khách
     try:
         await context.bot.send_message(
             chat_id=order["user_id"],
-            text=f"🎉 Thanh toán thành công!\nĐơn #{order_number} đã xác nhận.\nMilk-Tea đang pha trà cho bạn 🧋",
+            text=(
+                f"✅ *Thanh toán đã được xác nhận!*\n\n"
+                f"📋 Mã đơn: #{order_number}\n"
+                f"🧋 Milkteainfo đang pha chế đơn của bạn...\n"
+                f"⏱ Dự kiến hoàn thành trong 10–15 phút!\n\n"
+                f"Chúng mình sẽ báo bạn khi đơn sẵn sàng nhé 😊"
+            ),
+            parse_mode=ParseMode.MARKDOWN,
         )
     except Exception as e:
         logger.error(f"Cannot notify user: {e}")
 
 
 async def cmd_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin: Đánh dấu đã pha chế/giao xong → thông báo khách."""
     if not context.args:
-        await update.message.reply_text("Cú pháp: /done [mã đơn]")
+        await update.message.reply_text("Cú pháp: /done [mã đơn]\nVí dụ: /done 04201234")
         return
     order_number = context.args[0].upper()
     order = await get_db().mark_order_done(order_number)
     if not order:
         await update.message.reply_text(f"❌ Không tìm thấy đơn #{order_number}")
         return
-    await update.message.reply_text(f"🎉 Đơn #{order_number} đã giao!")
+
+    di = order.get("delivery_info", {})
+
+    # Thông báo cho admin
+    await update.message.reply_text(
+        f"🎉 *Đơn #{order_number} đã hoàn thành!*\n"
+        f"👤 {di.get('name','')} — {di.get('phone','')}\n"
+        f"📍 {di.get('address','')}",
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
+    # Thông báo chi tiết cho khách
     try:
         await context.bot.send_message(
             chat_id=order["user_id"],
-            text=f"🎉 Đơn #{order_number} đã giao thành công!\nCảm ơn bạn đã tin tưởng Milkteainfo 🧋❤️",
+            text=(
+                f"🎉 *Đơn hàng #{order_number} đã hoàn thành!*\n\n"
+                f"Trà của bạn đã sẵn sàng rồi nha! 🧋✨\n\n"
+                f"Cảm ơn bạn đã tin tưởng *Milkteainfo* ❤️\n"
+                f"Chúc bạn thưởng thức ngon miệng!\n\n"
+                f"Nhắn /start để đặt đơn tiếp theo nhé 😊"
+            ),
+            parse_mode=ParseMode.MARKDOWN,
         )
     except Exception as e:
         logger.error(f"Cannot notify user: {e}")
@@ -603,19 +649,42 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # ── Checkout state machine ──
     if step == "name":
-        context.user_data["delivery_name"] = text.strip()
+        name = text.strip()
+        if len(name) < 2:
+            await update.message.reply_text(
+                "❌ Tên phải có ít nhất 2 ký tự. Vui lòng nhập lại:"
+            )
+            return
+        context.user_data["delivery_name"] = name
         context.user_data["checkout_step"] = "phone"
         await update.message.reply_text(
-            "✅ Đã lưu tên!\n\nBước 2/3: Nhập *số điện thoại* 👇",
+            f"✅ Xin chào *{name}*!\n\nBước 2/3: Nhập *số điện thoại* 👇\n"
+            f"_(Ví dụ: 0901234567)_",
             parse_mode=ParseMode.MARKDOWN,
         )
         return
 
     elif step == "phone":
-        context.user_data["delivery_phone"] = text.strip()
+        import re
+        phone = re.sub(r'[\s\-\.\(\)]', '', text.strip())  # bỏ dấu cách, gạch nối
+        # Chuẩn hoá: +84xxxxxxxxx → 0xxxxxxxxx
+        if phone.startswith('+84'):
+            phone = '0' + phone[3:]
+        # Validate: 10 số, bắt đầu 03/05/07/08/09
+        if not re.fullmatch(r'(03|05|07|08|09)\d{8}', phone):
+            await update.message.reply_text(
+                "❌ Số điện thoại không hợp lệ!\n"
+                "Số điện thoại Việt Nam phải có 10 chữ số, bắt đầu bằng 03/05/07/08/09.\n"
+                "_(Ví dụ: 0901234567 hoặc +84901234567)_\n\n"
+                "Vui lòng nhập lại:",
+                parse_mode=ParseMode.MARKDOWN,
+            )
+            return
+        context.user_data["delivery_phone"] = phone
         context.user_data["checkout_step"] = "address"
         await update.message.reply_text(
-            "✅ Đã lưu SĐT!\n\nBước 3/3: Nhập *địa chỉ giao hàng* 👇",
+            f"✅ Đã lưu SĐT *{phone}*!\n\nBước 3/3: Nhập *địa chỉ giao hàng* 👇\n"
+            "_(Ví dụ: 12 Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM)_",
             parse_mode=ParseMode.MARKDOWN,
         )
         return
