@@ -379,5 +379,4 @@ python -m bot.main
 
 ---
 
-*Tài liệu được lập bởi: Nguyễn Trọng Thịnh — Intern Software Engineer 2026 Candidate*  
-*Casso Company Limited — Entry Test Submission*
+*Tài liệu được lập bởi: Nguyễn Duy Thịnh — Intern Software Engineer 2026*  
